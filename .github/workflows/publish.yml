@@ -28,8 +28,8 @@ jobs:
       - name: Install build tools
         run: |
           python -m pip install --upgrade pip
-          pip install build twine
-          pip install --upgrade setuptools wheel twine pkginfo
+          # 필요한 모든 빌드 도구를 한 번에 설치하고 업그레이드합니다.
+          pip install --upgrade setuptools wheel build twine pkginfo
 
       # 4. 패키지 빌드
       # 패키지 파일들이 루트에 위치하므로 working-directory를 지정할 필요가 없습니다.
