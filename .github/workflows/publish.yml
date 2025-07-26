@@ -36,11 +36,23 @@ jobs:
       - name: Build package
         run: python -m build
 
-      # 5. PyPI로 업로드
-      # pypa/gh-action-pypi-publish 액션도 루트 디렉토리에서 dist/ 폴더를 찾습니다.
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.8
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-          # dist/ 폴더가 루트에 생성되므로 working_directory를 지정할 필요가 없습니다.
+      # 4.5. 빌드된 패키지 확인 (디버깅용)
+      # dist/ 디렉토리의 내용을 확인하고, 빌드된 휠 파일의 메타데이터를 확인합니다.
+      - name: Verify built package
+        run: |
+          echo "Listing contents of dist/ directory:"
+          ls -l dist/
+          # 빌드된 휠 파일의 메타데이터를 확인합니다.
+          # 파일 이름은 실제 빌드된 파일 이름에 맞춰야 합니다. (예: apsniper0673_datahandler-0.1.6-py3-none-any.whl)
+          # 정확한 파일 이름을 모른다면, `ls dist/*.whl` 등으로 찾아서 사용하거나,
+          # `twine check` 명령을 사용하여 유효성을 검사할 수 있습니다.
+          echo "Checking metadata of the built wheel file(s):"
+          python -m twine check dist/*
+
+              # 5. Twine을 사용하여 PyPI로 업로드
+      # pypa/gh-action-pypi-publish 액션 대신 직접 twine 명령을 사용합니다.
+      - name: Publish to PyPI using Twine
+        run: python -m twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
