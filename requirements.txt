@@ -1,0 +1,15 @@
+flask
+waitress
+pandas
+requests
+bs4
+flask_apscheduler
+ipynbname
+pykrx
+exchange_calendars
+sqlalchemy
+pymysql
+pyarrow
+tabulate
+apsniper0673_stockutil
+apsniper0673_configreader
