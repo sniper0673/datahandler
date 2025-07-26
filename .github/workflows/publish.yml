@@ -13,6 +13,11 @@ jobs:
       # 1. 저장소 체크아웃
       - uses: actions/checkout@v3
 
+      # (선택 사항) 파일 구조 확인을 위한 디버깅 스텝
+      # 이 스텝을 추가하여 워크플로우 실행 중 파일들이 어디에 있는지 확인할 수 있습니다.
+      - name: List files for debugging
+        run: ls -R
+
       # 2. 파이썬 환경 설정
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -24,14 +29,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install build twine
+          pip install --upgrade setuptools wheel twine pkginfo
 
       # 4. 패키지 빌드
+      # 패키지 파일들이 루트에 위치하므로 working-directory를 지정할 필요가 없습니다.
       - name: Build package
         run: python -m build
 
       # 5. PyPI로 업로드
+      # pypa/gh-action-pypi-publish 액션도 루트 디렉토리에서 dist/ 폴더를 찾습니다.
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@v1.8.8
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+          # dist/ 폴더가 루트에 생성되므로 working_directory를 지정할 필요가 없습니다.
