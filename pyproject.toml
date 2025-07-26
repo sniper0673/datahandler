@@ -1,7 +1,7 @@
 [project]
-name = "apsniper0673_dataprovider"
+name = "apsniper0673_datahandler"
 version = "0.1.0"
-description = "My stock data provider for APSniper0673"
+description = "My stock data handler for APSniper0673"
 authors = [
   { name = "apsniper0673" }
 ]
