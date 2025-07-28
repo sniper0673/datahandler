@@ -176,13 +176,16 @@ class StockDataHandler_property(StockDataHandler_sdh):
         return self.df.xs(key=date, level='일자')
     @property
     def df_filtered(self): # filtered df
-        return remove_unnecessary_symbols(self.df)
+        df = remove_unnecessary_symbols(self.df)
+        df.set_index(self.primary_keys, inplace=True, drop=False)
+        return df
     def remove_unnecessary_symbols(self, df:pd.DataFrame) -> pd.DataFrame:
         """
         불필요한 종목 코드를 제거합니다.
         """
         df = df.copy()
         df = remove_unnecessary_symbols(df)
+        df.set_index(self.primary_keys, inplace=True, drop=False)
         return df
         
     @property
