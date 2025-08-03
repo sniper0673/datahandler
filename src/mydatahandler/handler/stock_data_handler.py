@@ -53,7 +53,7 @@ class _StockDataHandler:
         self.df에 저장한다.
         """
         df = df.copy()  # 원본 DataFrame을 변경하지 않도록 복사본 생성
-        df = self._set_index_as_primary_keys(df)
+        df = self._convert_index_to_primary_keys(df)
         df = df.sort_index()  # 인덱스 정렬
         try:
             last_date = df.index.get_level_values(self.date_col_name).unique()[-1]  
@@ -63,7 +63,7 @@ class _StockDataHandler:
             last_date = None
         return df
     
-    def _set_index_as_primary_keys(self, df:pd.DataFrame) -> pd.DataFrame:
+    def _convert_index_to_primary_keys(self, df:pd.DataFrame, drop:bool=True) -> pd.DataFrame:
         df = df.copy()  # 원본 DataFrame을 변경하지 않도록 복사본 생성
         # 현재 인덱스를 리셋
         if set(self.primary_keys) == set(df.index.names):
@@ -83,7 +83,7 @@ class _StockDataHandler:
             raise ValueError(f"DataFrame must contain columns: {self.primary_keys}")
         # 인덱스를 primary_keys로 설정
         df[self.date_col_name] = pd.to_datetime(df[self.date_col_name]).dt.normalize() # narmalize()를 사용하기 위해서 .dt 사용
-        df.set_index(self.primary_keys, inplace=True, drop=False)
+        df.set_index(self.primary_keys, inplace=True, drop=drop)
         return df
     
     def _sort_df(self):
@@ -281,7 +281,8 @@ class _StockDataHandler_add_del(_StockDataHandler_recent):
         else:
             # 기존 데이터와 중복되는 날짜가 있다면, 해당 날짜의 데이터를 제거하고 추가한다.
             # daily_df의 인덱스를 설정
-            daily_df = self._convert_index_of_daily_df(daily_df)
+            # daily_df = self._convert_index_to_date_symbol(daily_df)
+            daily_df = self._convert_index_to_primary_keys(daily_df)
             overlap_idx = self.df.index.intersection(daily_df.index)
             self.df = pd.concat([self.df.drop(overlap_idx), daily_df])
         self._sort_df()
@@ -299,23 +300,23 @@ class _StockDataHandler_add_del(_StockDataHandler_recent):
         self.set_data(df)
         print(f"날짜 {date}에 해당하는 데이터를 삭제했습니다.")
         
-    def _convert_index_of_daily_df(self, daily_df:pd.DataFrame) -> pd.DataFrame:
-        """
-        DataFrame의 인덱스를 self.primary_keys로 설정하고, 정렬한다.
-        """
-        if set(self.primary_keys) != set(daily_df.index.names):
-            # 우선 인덱스를 없앤다. 
-            if daily_df.index.names == [None]:
-                daily_df.reset_index(drop=True, inplace=True)
-            else:
-                daily_df.reset_index(drop=False, inplace=True)
-            # self.primary_keys가 모두 daily_df의 칼럼에라도 있는지 확인
-            if not set(self.primary_keys).issubset(set(daily_df.columns)):
-                raise ValueError(f"daily_df의 인덱스가 {self.primary_keys}와 일치하지 않습니다.")
-            # self.primary_keys를 인덱스로 설정한다.
-            daily_df.set_index(self.primary_keys, drop=False, inplace=True)
-            daily_df.sort_index(inplace=True, ascending=[True, True])
-        return daily_df
+    # def _convert_index_to_date_symbol(self, daily_df:pd.DataFrame, drop:bool=True) -> pd.DataFrame:
+    #     """
+    #     DataFrame의 인덱스를 self.primary_keys로 설정하고, 정렬한다.
+    #     """
+    #     if set(self.primary_keys) != set(daily_df.index.names):
+    #         # 우선 인덱스를 없앤다. 
+    #         if daily_df.index.names == [None]:
+    #             daily_df.reset_index(drop=True, inplace=True)
+    #         else:
+    #             daily_df.reset_index(drop=False, inplace=True)
+    #         # self.primary_keys가 모두 daily_df의 칼럼에라도 있는지 확인
+    #         if not set(self.primary_keys).issubset(set(daily_df.columns)):
+    #             raise ValueError(f"daily_df의 인덱스가 {self.primary_keys}와 일치하지 않습니다.")
+    #         # self.primary_keys를 인덱스로 설정한다.
+    #         daily_df.set_index(self.primary_keys, drop=drop, inplace=True)
+    #         daily_df.sort_index(inplace=True, ascending=[True, True])
+    #     return daily_df
 
 
 class StockDataHandler_update_sert(_StockDataHandler_add_del):
@@ -337,7 +338,7 @@ class StockDataHandler_update_sert(_StockDataHandler_add_del):
             columns: ['종가', '전일대비', '변동률', '시가', '고가', '저가', '거래량', '거래대금', ...] 등의 여러가지가 있을 수 있음
         """
         # another_df의 인덱스를 self.primary_keys로 설정하고, 정렬한다.
-        another_df = self._set_index_as_primary_keys(another_df)
+        another_df = self._convert_index_to_primary_keys(another_df)
         df = update_df_with_another_df(
             df=self.df, 
             another_df=another_df
@@ -360,7 +361,7 @@ class StockDataHandler_update_sert(_StockDataHandler_add_del):
             logger.warning("another_df가 비어있습니다. self.df를 그대로 반환합니다.")
             return self.df
         # similar_df의 인덱스를 self.primary_keys로 설정하고, 정렬한다.
-        similar_df = self._set_index_as_primary_keys(similar_df)
+        similar_df = self._convert_index_to_primary_keys(similar_df)
         df = upsert_df_with_similar_df(
             df=self.df, 
             similar_df=similar_df

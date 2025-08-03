@@ -5,7 +5,7 @@ from typing import List
 하루짜리 데이터를 처리하는 핸들러입니다.
 .df: pd.DataFrame
     index='종목코드'
-    columns = ['일자', '종목코드', ... ]
+    columns = ['일자', ... ]
 """
 
 # essential imports
@@ -15,11 +15,11 @@ class _SDH:
     """
     .df: pd.DataFrame
         index='종목코드'
-        columns = ['일자', '종목코드', ... ]
+        columns = ['일자', ... ]
     .date: pd.Timestamp # 데이터의 유일한(동일한) 날짜
     """
     def __init__(self):
-        self._df = pd.DataFrame()  # 종목코드는 index인 동시에 '종목코드' 컬럼으로도 존재한다.
+        self._df = pd.DataFrame()  # 종목코드는 index에만 존재
         self.date: pd.Timestamp = None # self.df의 유일한(동일한) 날짜. 존재하지 않을 수도 있다. 
 
     @property
@@ -27,7 +27,7 @@ class _SDH:
         """
         self._df를 반환합니다.
         index = '종목코드'
-        columns = ['일자', '종목코드', ... ]
+        columns = ['일자', ... ]
         """
         return self._df
     @df.setter
@@ -50,8 +50,8 @@ class _SDH:
         .df를 df로 설정합니다. 
         Params:
         df: pd.DataFrame
-            index='종목코드' # 종목코드가 index가 아닌 경우, 인덱스를 리셋하고 '종목코드' 컬럼을 추가해야 합니다.
-            columns = ['일자', '종목코드', ... ]
+            index='종목코드' # 종목코드가 index가 아닌 경우, 인덱스를 리셋하고 '종목코드'를 인덱스로 만듭니다.
+            columns = ['일자', ... ]
         """
         df = df.copy()
         # 인덱스 name과 동일한 칼럼을 제거
@@ -64,8 +64,8 @@ class _SDH:
             raise ValueError("DataFrame must contain '종목코드' column.")
         # 중복된 칼럼을 삭제
         df = df.loc[:, ~df.columns.duplicated()]
-        # '종목코드'를 index로 설정하면서 칼럼에도 남김
-        df.set_index('종목코드', drop=False, inplace=True)
+        # '종목코드'를 index로 설정하면서 칼럼에서 삭제
+        df.set_index('종목코드', drop=True, inplace=True)
         # 일자 칼럼이 존재하는 경우, TimeStamp로 변환 후, 모든 일자칼럼이 동일한지 확인. 
         if '일자' in df.columns:
             df['일자'] = pd.to_datetime(df['일자'], errors='coerce')
@@ -122,7 +122,7 @@ class SingledayDataHandler(SDH_get):
     하루짜리 데이터를 처리하는 핸들러입니다.
     .df: pd.DataFrame
         index='종목코드'
-        columns = ['일자', '종목코드', ... ]
+        columns = ['일자', ... ]
     """
     def ready(self):
         """
@@ -136,7 +136,7 @@ class SingledayDataHandler(SDH_get):
         즉, KRX의 최신 데이터를 다시 불러옵니다.
         """
         print("Clearing Singleday Data Handler...")
-        self.df = pd.DataFrame(columns=self.df.columns).set_index(pd.MultiIndex.from_tuples([], names=['종목코드']))
+        self.df = pd.DataFrame(columns=self.df.columns, index=pd.Index([], name='종목코드'))
 
 
 if __name__ == '__main__':

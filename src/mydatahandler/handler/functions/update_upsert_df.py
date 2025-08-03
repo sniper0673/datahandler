@@ -36,8 +36,8 @@ def update_df_with_another_df(
     
     # 공통 칼럼 추출
     common_columns = set(df.columns).intersection(another_df.columns)
-    common_columns.discard('일자')
-    common_columns.discard('종목코드')
+    # common_columns.discard('일자')
+    # common_columns.discard('종목코드')
 
     if not common_columns:
         logger.warning("another_df와 df에 공통 칼럼이 없습니다. 업데이트하지 않습니다.")
