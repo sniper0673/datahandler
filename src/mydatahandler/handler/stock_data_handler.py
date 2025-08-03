@@ -183,9 +183,7 @@ class StockDataHandler_property(StockDataHandler_sdh):
         """
         불필요한 종목 코드를 제거합니다.
         """
-        df = df.copy()
         df = remove_unnecessary_symbols(df)
-        df.set_index(self.primary_keys, inplace=True, drop=False)
         return df
         
     @property
