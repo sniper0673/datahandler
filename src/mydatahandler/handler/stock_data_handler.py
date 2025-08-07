@@ -177,7 +177,6 @@ class StockDataHandler_property(StockDataHandler_sdh):
     @property
     def df_filtered(self): # filtered df
         df = remove_unnecessary_symbols(self.df)
-        df.set_index(self.primary_keys, inplace=True, drop=False)
         return df
     def remove_unnecessary_symbols(self, df:pd.DataFrame) -> pd.DataFrame:
         """
