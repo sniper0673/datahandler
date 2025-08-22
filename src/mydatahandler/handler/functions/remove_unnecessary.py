@@ -27,6 +27,8 @@ def remove_unnecessary_symbols(df:pd.DataFrame) -> pd.DataFrame:
         df = df[
         df['시장ID'].str.contains('STK|KSQ')
         ]
+    elif '마켓구분' in df.columns:
+        df = df[df['마켓구분'].isin(['KOSPI', 'KOSDAQ', 'KOSDAQGLOBAL'])]
     df = df.set_index(index_names, drop=True)
     return df
 
