@@ -251,10 +251,10 @@ class _StockDataHandler_recent(_StockDataHandler_manage):
         # 최근 n일의 데이터를 가져온다.
         recent_df = get_recent_df(df=self.df, days=days)
         return recent_df
-    def set_as_recent_df(self, days:int=300):
+    def set_as_recent_df(self, days:int=700):
         """
         현재 df를 최근 n일의 데이터로 설정한다.
-        기본값은 300일로 설정되어 있다.
+        기본값은 700일로 설정되어 있다.
         """
         if self.df.empty:
             logger.warning("DataFrame is empty. Cannot set as recent DataFrame.")
