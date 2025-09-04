@@ -56,7 +56,7 @@ def update_df_with_another_df(
 
     # 실제 업데이트
     df.loc[valid_index, list(common_columns)] = another_df.loc[valid_index, list(common_columns)]
-    print(f"{len(valid_index)}개 인덱스에서 {len(common_columns)}개 칼럼 업데이트 완료.")
+    # print(f"{len(valid_index)}개 인덱스에서 {len(common_columns)}개 칼럼 업데이트 완료.")
     df.sort_index(inplace=True)  # 인덱스 정렬
     return df
 
